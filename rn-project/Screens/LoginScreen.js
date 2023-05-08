@@ -36,7 +36,7 @@ const loadAplication = async () => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
     const [state, setstate] = useState(initialState);
     const [isReady, setIsReady] = useState(false);
-    const [dimensions, setDimentions] = useState(Dimensions.get('window').width - 20 * 2);
+    const [dimensions, setDimentions] = useState(Dimensions.get("window").width - 20 * 2);
 
     useEffect(() => {
       const onChange = () => {
@@ -50,6 +50,11 @@ const loadAplication = async () => {
     }, []);
     
     const dispatch = useDispatch();
+
+     const keyboardHide = () => {
+    Keyboard.dismiss();
+    setIsShowKeyboard(false);
+  };
   
   const handleSubmit = () => {
     setIsShowKeyboard(false);

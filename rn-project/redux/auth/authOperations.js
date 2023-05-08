@@ -1,4 +1,4 @@
-import { auth } from '../../firebase/config';
+import { authFirebase } from '../../firebase/config';
 
 import {
     createUserWithEmailAndPassword,
@@ -10,17 +10,18 @@ import { authSlice } from './authReducer';
 
 const { updateUserProfile, authStateChange } = authSlice.actions;
 
-export const authSignUpUser = ({ email, password, name }) => async (dispatch, getState) => {
+export const authSignUpUser = ({ email, password, login }) => async (dispatch, getState) => {
     try {
-        const user = await createUserWithEmailAndPassword(auth, email, password);
-         await updateProfile(auth.currentUser, {
+        const responce = await createUserWithEmailAndPassword(authFirebase, email, password);
+        const user = responce.user;
+         await updateProfile(authFirebase.currentUser, {
              displayName: login,
              userId: user.uid,
          });
-        const { displayName, uid, photoURL } = await authFirebase.currentUser;
+        const { displayName, uid, photoURL } = authFirebase.currentUser;
 
       const userUpdateProfile = {
-        userName: displayName,
+        login: displayName,
         userId: uid,
         // userAvatar: photoURL,
         userEmail: email,
@@ -35,7 +36,7 @@ export const authSignUpUser = ({ email, password, name }) => async (dispatch, ge
 
 export const authSignIn = ({ email, password }) => async (dispatch, getState) => {
     try {
-         const user = await signInWithEmailAndPassword(auth, email, password)
+         const user = await signInWithEmailAndPassword(authFirebase, email, password)
         // const user = await db
       
     } catch(error) {
@@ -45,7 +46,11 @@ export const authSignIn = ({ email, password }) => async (dispatch, getState) =>
     
 };
 
-export const authSignOut = () => async(dispatch, getState) => {
+export const authSignOut = () => async (dispatch, getState) => {
     
+};
+
+export const authStateChangeUser = () => async (dispatch, getState) => { 
+     onAuthStateChanged(authFirebase, (user) => setUser(user));
 }
 

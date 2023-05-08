@@ -50,7 +50,12 @@ const loadAplication = async () => {
       return () => {
         Dimensions.removeEventListener('change', onChange);
       }
-     }, []);
+    }, []);
+    
+     const keyboardHide = () => {
+    Keyboard.dismiss();
+    setIsShowKeyboard(false);
+  };
   
   const handleSubmit = () => {
     setIsShowKeyboard(false);
@@ -71,7 +76,7 @@ const loadAplication = async () => {
         <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
             <View style={{
-              ...styles.form, marginBottom: isShowKeyboard ? 16 : 113,
+              ...styles.form, marginBottom: isShowKeyboard ? 16 : 120,
                           width: dimensions,
                       }}>
             <View style={{backgroundColor: '#fff', width: 375, position: 'absolute', height: 450,top: -290, left: 0, borderRadius: 25}}>
