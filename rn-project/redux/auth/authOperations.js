@@ -47,10 +47,27 @@ export const authSignIn = ({ email, password }) => async (dispatch, getState) =>
 };
 
 export const authSignOut = () => async (dispatch, getState) => {
-    
+    try {
+    await signOut(authFirebase);
+    dispatch(authSignOut());
+  } catch (error) {
+    console.log("error", error);
+  }
 };
 
 export const authStateChangeUser = () => async (dispatch, getState) => { 
-     onAuthStateChanged(authFirebase, (user) => setUser(user));
+    onAuthStateChanged(authFirebase, (user) => {
+        if (user) {
+        const userUpdateProfile = {
+        login: user.displayName,
+        userId: user.uid,
+        // userAvatar: user.photoURL,
+        userEmail: user.email,
+      };
+
+      dispatch(authStateChange({ stateChange: true }));
+      dispatch(updateUserProfile(userUpdateProfile));
+        }
+    });
 }
 

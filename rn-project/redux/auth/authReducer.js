@@ -13,7 +13,10 @@ export const authSlice = createSlice({
       userId: payload.userId,
       login: payload.login,
     }),
-    authStateChange: (state, {payload}) => ({...state, stateChange: payload.stateChange})
+    authStateChange: (state, { payload }) => ({
+      ...state,
+      stateChange: payload.stateChange
+    })
   },
 });
 
