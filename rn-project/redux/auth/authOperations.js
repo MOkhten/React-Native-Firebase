@@ -4,11 +4,12 @@ import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     updateProfile,
-    onAuthStateChanged
+    onAuthStateChanged,
+    signOut
 } from 'firebase/auth';
 import { authSlice } from './authReducer';
 
-const { updateUserProfile, authStateChange } = authSlice.actions;
+const { updateUserProfile, authStateChange, authSignOut } = authSlice.actions;
 
 export const authSignUpUser = ({ email, password, login }) => async (dispatch, getState) => {
     try {
@@ -46,7 +47,7 @@ export const authSignIn = ({ email, password }) => async (dispatch, getState) =>
     
 };
 
-export const authSignOut = () => async (dispatch, getState) => {
+export const authSignOutUser = () => async (dispatch, getState) => {
     try {
     await signOut(authFirebase);
     dispatch(authSignOut());
