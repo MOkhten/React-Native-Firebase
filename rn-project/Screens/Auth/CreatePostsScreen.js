@@ -1,17 +1,34 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput } from "react-native";
 import { Camera } from "expo-camera";
-import * as Location from 'expo-location';
+import * as Location from "expo-location";
 import { db, storage } from "../../firebase/config";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 
 const CreatePostsScreen = ({navigation}) => {
     const [camera, setCamera] = useState(null);
     const [photo, setPhoto] = useState(null);
+    const [comment, setComment] = useState('');
+    const [location, setLocation] = useState(null);
+
+    useEffect(() => {
+    (async () => {
+      
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    })();
+  }, []);
    
     const takePhoto = async () => {
         const {uri} = await camera.takePictureAsync();
-        const location =  await Location.getCurrentPositionAsync();
+        // const location =  await Location.getCurrentPositionAsync();
         setPhoto(uri);
     };
 
@@ -25,7 +42,7 @@ const CreatePostsScreen = ({navigation}) => {
         const file = await responce.blob();
 
         const unoquePostId = Date.now().toString();
-        const data = await ref(storage, `postImage/${unoquePostId}`);
+        const data = ref(storage, `postImage/${unoquePostId}`);
         await uploadBytes(data, file);
 
         const proseededPhoto = await getDownloadURL(data);
@@ -52,7 +69,8 @@ const CreatePostsScreen = ({navigation}) => {
             <View >
                 <Text style={styles.text}>Загрузите фото</Text>
                 <View>
-                    <TextInput style={styles.input}
+                    <TextInput style={styles.input} 
+                        onChangeText={setComment}
                 placeholder="Название"></TextInput>
                 </View>
                  
