@@ -24,3 +24,4 @@ export const db = getFirestore(app);
 
 export const authFirebase = getAuth(app);
 
+export const storage = getStorage(app);

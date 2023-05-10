@@ -2,22 +2,32 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput } from "react-native";
 import { Camera } from "expo-camera";
 import * as Location from 'expo-location';
-
+import { db, storage } from "../../firebase/config";
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 
 const CreatePostsScreen = ({navigation}) => {
     const [camera, setCamera] = useState(null);
-    const [photo, setPhoto] = useState('');
+    const [photo, setPhoto] = useState(null);
    
     const takePhoto = async () => {
-        const photo = await camera.takePictureAsync();
+        const {uri} = await camera.takePictureAsync();
         const location =  await Location.getCurrentPositionAsync();
-        setPhoto(photo.uri);
+        setPhoto(uri);
     };
 
     const sendPhoto = () => {
+        uploadPhotoToServer();
         navigation.navigate('HomeScreen', {photo})
     };
+
+    const uploadPhotoToServer = async () => {
+        const responce = await fetch(photo);
+        const file = await responce.blob();
+
+        const unoquePostId = Date.now().toString();
+        const data = await ref(storage, `postImage/${unoquePostId}`).put(file);
+        console.log(data);
+    }
     
     return (
        
