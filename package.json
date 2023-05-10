@@ -1,5 +1,0 @@
-{
-  "dependencies": {
-    "@firebase/firestore": "^3.11.0"
-  }
-}
