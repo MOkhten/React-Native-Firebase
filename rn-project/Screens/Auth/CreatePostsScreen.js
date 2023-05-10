@@ -25,8 +25,12 @@ const CreatePostsScreen = ({navigation}) => {
         const file = await responce.blob();
 
         const unoquePostId = Date.now().toString();
-        const data = await ref(storage, `postImage/${unoquePostId}`).put(file);
-        console.log(data);
+        const data = await ref(storage, `postImage/${unoquePostId}`);
+        await uploadBytes(data, file);
+
+        const proseededPhoto = await getDownloadURL(data);
+        return proseededPhoto;
+        
     }
     
     return (
