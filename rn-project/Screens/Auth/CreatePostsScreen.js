@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import {useSelector} from 'react-redux'
 import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput } from "react-native";
 import { Camera } from "expo-camera";
 import * as Location from "expo-location";
 import { db, storage } from "../../firebase/config";
+import { collection, doc, setDoc, addDoc } from "firebase/firestore"; 
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 
@@ -11,6 +13,8 @@ const CreatePostsScreen = ({navigation}) => {
     const [photo, setPhoto] = useState(null);
     const [comment, setComment] = useState('');
     const [location, setLocation] = useState(null);
+
+    const { userId, login } = useSelector((state)=>state.auth);
 
     useEffect(() => {
     (async () => {
@@ -33,9 +37,38 @@ const CreatePostsScreen = ({navigation}) => {
     };
 
     const sendPhoto = () => {
-        uploadPhotoToServer();
+        uploadPostToServer();
         navigation.navigate('HomeScreen', {photo})
     };
+
+    const uploadPostToServer = async () => {
+        // const photo = await uploadPhotoToServer();
+        // const createPost = collection(db, "posts");
+        // await setDoc(doc(createPost), {
+        //     photo: photo,
+        //     comment,
+        //     location: location,
+        //     login,
+        //     userId,
+        // });
+    try {
+      const uploadPhoto = await uploadPhotoToServer();
+
+      const collectionRef = doc(collection(db, "posts"));
+
+      await setDoc(collectionRef, {
+        photo: uploadPhoto,
+        location,
+        comment,
+        // comments: 0,
+        userId,
+        login,
+        // timestamp: serverTimestamp(),
+      });
+    } catch (error) {
+      console.log("upload post", error);
+    }
+    }
 
     const uploadPhotoToServer = async () => {
         const responce = await fetch(photo);
@@ -70,8 +103,9 @@ const CreatePostsScreen = ({navigation}) => {
                 <Text style={styles.text}>Загрузите фото</Text>
                 <View>
                     <TextInput style={styles.input} 
-                        onChangeText={setComment}
-                placeholder="Название"></TextInput>
+                        
+                        placeholder="Название"
+                    onChangeText={setComment}></TextInput>
                 </View>
                  
                     
