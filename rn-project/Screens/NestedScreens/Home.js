@@ -12,13 +12,16 @@ export default function HomeScreenPosts({ navigation, route }) {
   const handlePress = () => {
     navigation.navigate("Login");
   };
-const [posts, setPosts] = useState([]);
-
+  const [posts, setPosts] = useState([]);
+  // console.log("route-params", route.params);
+  
   useEffect(() => {
     if (route.params) {
-      setPosts(prevState => [...prevState, route.params])
+      setPosts((prevState) => [...prevState, route.params]);
     }
-},[route.params])
+  }, [route.params]);
+  // console.log("posts:", posts);
+
   return (
     <View style={styles.container}>
       <View style={styles.content}>
