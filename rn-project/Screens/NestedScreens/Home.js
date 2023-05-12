@@ -42,15 +42,23 @@ export default function HomeScreenPosts({ navigation, route }) {
         </TouchableOpacity>
       </View>
       <FlatList data={posts} keyExtractor={(item, index) => index.toString()}
-        renderItem={(item) => <View style={{marginBottom:10, justifyContent: 'center', alignItems: 'center'}}><Image source={{ uri: item.photo }}
-                  style={{ width: 350, height: 200 }} /></View>} />
-           <Button title="go to map" onPress={() => navigation.navigate("Map")} />
+        renderItem={({ item }) => <View style={{ marginBottom: 10, justifyContent: 'center', alignItems: 'center' }}>
+          <Image source={{ uri: item.photo }}
+            style={{ width: 350, height: 200 }} />
+          <View>
+            <Text>{ item.comment}</Text>
+          </View>
+          <View>
+            <Button title="go to map" onPress={() => navigation.navigate("Map", {location: item.location})} />
           <Button
               
         title="go to Comments"
               onPress={() => navigation.navigate("Comments")}
               
       />
+          </View>
+        </View>} />
+           
       <HorizontalLine />
     </View>
   );

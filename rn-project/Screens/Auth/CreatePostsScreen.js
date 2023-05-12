@@ -28,7 +28,20 @@ const CreatePostsScreen = ({navigation}) => {
       let location = await Location.getCurrentPositionAsync({});
       setLocation(location);
     })();
-  }, []);
+    }, []);
+    
+//     const requestPermissions = async () => {
+//     try {
+//       const { status } = await ImagePicker.requestCameraPermissionsAsync();
+//       console.log("status lib", status);
+//     } catch (error) {
+//       console.log("error", error);
+//     }
+//   };
+
+//   useEffect(() => {
+//     requestPermissions();
+//   }, []);
    
     const takePhoto = async () => {
         const {uri} = await camera.takePictureAsync();
