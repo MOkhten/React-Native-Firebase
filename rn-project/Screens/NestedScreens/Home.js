@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { db } from "../../firebase/config";
+import { onSnapshot, collection, query, getDocs } from "firebase/firestore";
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Button } from "react-native";
 import { Feather } from "@expo/vector-icons";
 
@@ -13,14 +15,23 @@ export default function HomeScreenPosts({ navigation, route }) {
     navigation.navigate("Login");
   };
   const [posts, setPosts] = useState([]);
-  // console.log("route-params", route.params);
+
+  const getAllPosts = async () => {
+    const q = await query(collection(db, "posts"));
+    const posts = await onSnapshot(q, (querySnapshot) => {
+      querySnapshot.forEach((post) => {
+        setPosts((prevState) => [
+          ...prevState,
+          { id: post.id, ...post.data() },
+        ]);
+      });
+    });
+  };
   
   useEffect(() => {
-    if (route.params) {
-      setPosts((prevState) => [...prevState, route.params]);
-    }
-  }, [route.params]);
-  // console.log("posts:", posts);
+    getAllPosts();
+  }, []);
+  
 
   return (
     <View style={styles.container}>
