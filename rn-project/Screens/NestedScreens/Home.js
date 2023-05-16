@@ -50,28 +50,30 @@ export default function HomeScreenPosts({ navigation, route }) {
             <Text >{ item.comment}</Text>
           </View>
           <View style={styles.locationCommentContainer}>
+            <View style={styles.commentContainer}>
             <Pressable  title={"Comments"}
                                              onPress={() => navigation.navigate("Comments", {
-                                                 id: item.id,
-                                                 header: item.headers.name,
-                                                 photo: item.photo,
-                                                 place: item.headers.place,
-                                                 location: item.location,
+                                                 postId: item.id,
+                                                //  header: item.headers.name,
+                                                //  photo: item.photo,
+                                                //  place: item.headers.place,
+                                                //  location: item.location,
                                              })}>
-              <View style={styles.commentContainer}>
+              
                 <Text style={{color: 'grey'}}>
                                           <Ionicons name="chatbubble-outline" size={24} color="#BDBDBD"/>
                                           {item.commentsCount ?? 0}
-                                      </Text>
+                </Text>
+                </Pressable>
               </View>
                                       
-                                  </Pressable>
+                                  
                       <View style={styles.location}>          
                     <Pressable title={"Map"}
             onPress={() => navigation.navigate("Map", {
            location: item.location,
               })}>
-                                          <Ionicons name="location-outline" size={24} color="#BDBDBD"/>
+           <Ionicons name="location-outline" size={24} color="#BDBDBD"/>
                                           
               </Pressable>
               </View>          
