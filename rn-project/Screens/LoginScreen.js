@@ -36,11 +36,11 @@ const loadAplication = async () => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
     const [state, setstate] = useState(initialState);
     const [isReady, setIsReady] = useState(false);
-    const [dimensions, setDimentions] = useState(Dimensions.get("window").width - 20 * 2);
+    const [dimensions, setDimentions] = useState(Dimensions.get("window").width);
 
     useEffect(() => {
       const onChange = () => {
-        const width = Dimensions.get('window').width- 20 * 2;
+        const width = Dimensions.get('window').width;
         setDimentions(width);
       }
       Dimensions.addEventListener('change', onChange);
@@ -73,12 +73,13 @@ const loadAplication = async () => {
       
       <ImageBackground style={styles.image} source={require('../images/photo.jpg')}>
         <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
             <View style={{
-              ...styles.form, marginBottom: isShowKeyboard ? 20 : 113,
-                          width: dimensions,
+              ...styles.form, paddingBottom: isShowKeyboard ? 20 : 113,
+                 width: dimensions,
                       }}>
-            <View style={{backgroundColor: '#fff', width: 375, position: 'absolute', height: 450,top: -320, left: 0, borderRadius: 25}}>
+            <View style={{backgroundColor: '#fff', width: dimensions, position: 'absolute', height: 450,top: -320, left: 0, borderRadius: 25}}>
             <Text style={styles.header}>Войти</Text>
           
             <View style={{marginTop: 16}}>

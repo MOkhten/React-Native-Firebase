@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { db } from "../../firebase/config";
 import { onSnapshot, collection, query, getDocs } from "firebase/firestore";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Button } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image, Button, Pressable } from "react-native";
 import { Feather } from "@expo/vector-icons";
+import {Ionicons} from '@expo/vector-icons';
 
 const HorizontalLine = ({}) => {
   return <View style={styles.line}></View>;
@@ -45,18 +46,37 @@ export default function HomeScreenPosts({ navigation, route }) {
         renderItem={({ item }) => <View style={{ marginBottom: 10, justifyContent: 'center', alignItems: 'center' }}>
           <Image source={{ uri: item.photo }}
             style={{ width: 350, height: 200 }} />
-          <View>
-            <Text>{ item.comment}</Text>
+          <View style={styles.text}>
+            <Text >{ item.comment}</Text>
           </View>
-          <View>
-            <Button title="go to map" onPress={() => navigation.navigate("Map", {location: item.location})} />
-          <Button
-              
-        title="go to Comments"
-              onPress={() => navigation.navigate("Comments")}
-              
-      />
+          <View style={styles.locationCommentContainer}>
+            <Pressable  title={"Comments"}
+                                             onPress={() => navigation.navigate("Comments", {
+                                                 id: item.id,
+                                                 header: item.headers.name,
+                                                 photo: item.photo,
+                                                 place: item.headers.place,
+                                                 location: item.location,
+                                             })}>
+              <View style={styles.commentContainer}>
+                <Text style={{color: 'grey'}}>
+                                          <Ionicons name="chatbubble-outline" size={24} color="#BDBDBD"/>
+                                          {item.commentsCount ?? 0}
+                                      </Text>
+              </View>
+                                      
+                                  </Pressable>
+                      <View style={styles.location}>          
+                    <Pressable title={"Map"}
+            onPress={() => navigation.navigate("Map", {
+           location: item.location,
+              })}>
+                                          <Ionicons name="location-outline" size={24} color="#BDBDBD"/>
+                                          
+              </Pressable>
+              </View>          
           </View>
+          
         </View>} />
            
       <HorizontalLine />
@@ -69,7 +89,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     justifyContent: "center",
-    alignItems: "flex-end",
+    alignItems: "center",
     marginTop: 20,
   },
   content: {
@@ -83,5 +103,26 @@ const styles = StyleSheet.create({
     borderBottomColor: "#ccc",
     borderBottomWidth: 1,
     width: "100%",
+  },
+  text: {
+    display: 'flex',
+    justifyContent: 'flex-start',
+    // alignItems: 'flex-start',
+    fontSize: 16,
+    marginBottom: 11,
+  },
+  locationCommentContainer: {
+    justifyContent: "space-between",
+    flexDirection: "row",
+    marginBottom: 8,
+  },
+  commentContainer: {
+    display: 'flex',
+    flexDirection: "row",
+    alignItems: 'flex-start',
+  },
+  location: {
+    flexDirection: "row",
+    alignItems: 'baseline',
   },
 });
