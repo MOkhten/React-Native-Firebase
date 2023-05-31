@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { StatusBar } from 'expo-status-bar';
-import * as Font from "expo-font";
-import  AppLoading  from 'expo-app-loading';
+// import * as SplashScreen from "expo-splash-screen";
+// import * as Font from "expo-font";
+// import  AppLoading  from 'expo-app-loading';
 import {
   StyleSheet,
   Text,
@@ -25,12 +26,12 @@ import { authSignIn } from "../redux/auth/authOperations";
     password: '',
   };
 
-const loadAplication = async () => {
-    await Font.loadAsync({
-       "Roboto-Bold": require("../assets/fonts/Roboto-Bold.ttf"),
-    'Roboto-Reg': require('../assets/fonts/Roboto-Regular.ttf'),
-  });
-};
+// const loadAplication = async () => {
+//     await Font.loadAsync({
+//        "Roboto-Bold": require("../assets/fonts/Roboto-Bold.ttf"),
+//     'Roboto-Reg': require('../assets/fonts/Roboto-Regular.ttf'),
+//   });
+// };
 
   export default function LoginScreen({navigation}) {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
@@ -52,8 +53,9 @@ const loadAplication = async () => {
     const dispatch = useDispatch();
 
      const keyboardHide = () => {
-    Keyboard.dismiss();
-    setIsShowKeyboard(false);
+    
+       setIsShowKeyboard(false);
+       Keyboard.dismiss();
   };
   
   const handleSubmit = () => {
@@ -63,10 +65,14 @@ const loadAplication = async () => {
     setstate(initialState);
   };
     
-    if (!isReady) {
-      return (<AppLoading startAsync={loadAplication} onFinish={() => setIsReady(true)}
-      onError={console.warn}/>);
-    }
+    // if (!isReady) {
+  //     return null;
+  // } else {
+  //   SplashScreen.hideAsync();
+  // }
+    //   return (<AppLoading startAsync={loadAplication} onFinish={() => setIsReady(true)}
+    //   onError={console.warn}/>);
+    // }
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
     <View style={styles.container} >
