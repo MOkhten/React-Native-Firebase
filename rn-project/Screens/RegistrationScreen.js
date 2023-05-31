@@ -21,7 +21,7 @@ import { authSignUpUser} from '../redux/auth/authOperations';
 
 
   const initialState = {
-    name: '',
+    login: '',
     email: '',
     password: '',
   };

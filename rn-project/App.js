@@ -1,9 +1,3 @@
-// import React from "react";
-// import { Provider} from "react-redux";
-// import { store } from "./redux/store";
-// import Main from "./components/Main";
-
-//    export default function App() {
   import React, { useEffect } from "react";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
