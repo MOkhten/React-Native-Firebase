@@ -17,7 +17,7 @@ import {
 
 import { useDispatch } from 'react-redux';
 
-import { authSignUpUser} from '../redux/auth/authOperations';
+import { authSignUpUser} from '../../redux/auth/authOperations';
 
 
   const initialState = {
@@ -72,7 +72,7 @@ import { authSignUpUser} from '../redux/auth/authOperations';
     <TouchableWithoutFeedback onPress={keyboardHide}>
     <View style={styles.container}>
       
-    <ImageBackground style={styles.image} source={require('../images/photo.jpg')}>
+    <ImageBackground style={styles.image} source={require('../../images/photo.jpg')}>
       <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <View style={{

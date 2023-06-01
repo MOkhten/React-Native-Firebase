@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 
-import { authSignIn } from "../redux/auth/authOperations"; 
+import { authSignIn } from "../../redux/auth/authOperations"; 
 
 
   const initialState = {
@@ -77,7 +77,7 @@ import { authSignIn } from "../redux/auth/authOperations";
     <TouchableWithoutFeedback onPress={keyboardHide}>
     <View style={styles.container} >
       
-      <ImageBackground style={styles.image} source={require('../images/photo.jpg')}>
+      <ImageBackground style={styles.image} source={require('../../images/photo.jpg')}>
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
