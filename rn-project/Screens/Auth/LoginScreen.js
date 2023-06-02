@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { StatusBar } from 'expo-status-bar';
-// import * as SplashScreen from "expo-splash-screen";
-// import * as Font from "expo-font";
-// import  AppLoading  from 'expo-app-loading';
+
+
 import {
   StyleSheet,
   Text,
@@ -17,7 +16,6 @@ import {
   Dimensions,
 } from 'react-native';
 import { useDispatch } from 'react-redux';
-
 import { authSignIn } from "../../redux/auth/authOperations"; 
 
 
@@ -26,17 +24,12 @@ import { authSignIn } from "../../redux/auth/authOperations";
     password: '',
   };
 
-// const loadAplication = async () => {
-//     await Font.loadAsync({
-//        "Roboto-Bold": require("../assets/fonts/Roboto-Bold.ttf"),
-//     'Roboto-Reg': require('../assets/fonts/Roboto-Regular.ttf'),
-//   });
-// };
 
-  export default function LoginScreen({navigation}) {
+export default function LoginScreen({ navigation }) {
+    
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
     const [state, setstate] = useState(initialState);
-    const [isReady, setIsReady] = useState(false);
+    // const [isReady, setIsReady] = useState(false);
     const [dimensions, setDimentions] = useState(Dimensions.get("window").width);
 
     useEffect(() => {
@@ -65,14 +58,7 @@ import { authSignIn } from "../../redux/auth/authOperations";
     setstate(initialState);
   };
     
-    // if (!isReady) {
-  //     return null;
-  // } else {
-  //   SplashScreen.hideAsync();
-  // }
-    //   return (<AppLoading startAsync={loadAplication} onFinish={() => setIsReady(true)}
-    //   onError={console.warn}/>);
-    // }
+ 
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
     <View style={styles.container} >

@@ -11,20 +11,21 @@ import { authSlice } from './authReducer';
 
 const { updateUserProfile, authStateChange, authSignOut } = authSlice.actions;
 
-export const authSignUpUser = ({ email, password, login }) => async (dispatch, getState) => {
+export const authSignUpUser = ({ email, password, login, userAvatar }) => async (dispatch, getState) => {
     try {
         const responce = await createUserWithEmailAndPassword(authFirebase, email, password);
         const user = responce.user;
          await updateProfile(authFirebase.currentUser, {
              displayName: login,
-             userId: user.uid,
+           userId: user.uid,
+             photoURL: userAvatar,
          });
-        const { displayName, uid, photoURL } = authFirebase.currentUser;
+        const { displayName, uid, photoURL, email } = authFirebase.currentUser;
 
       const userUpdateProfile = {
         login: displayName,
         userId: uid,
-        // userAvatar: photoURL,
+        userAvatar: photoURL,
         userEmail: email,
       };
 
@@ -62,7 +63,7 @@ export const authStateChangeUser = () => async (dispatch, getState) => {
         const userUpdateProfile = {
         login: user.displayName,
         userId: user.uid,
-        // userAvatar: user.photoURL,
+        userAvatar: user.photoURL,
         userEmail: user.email,
       };
 

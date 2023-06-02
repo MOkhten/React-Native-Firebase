@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
-// import * as Font from "expo-font";
-// import  AppLoading  from 'expo-app-loading';
+import { Camera } from "expo-camera";
+import * as MediaLibrary from "expo-media-library";
+import { MaterialIcons } from "@expo/vector-icons";
+import * as ImagePicker from 'expo-image-picker';
+import {getStorage, ref, uploadBytes, getDownloadURL} from "firebase/storage";
+import {AntDesign} from "@expo/vector-icons";
 import {
   StyleSheet,
   Text,
@@ -13,6 +17,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Dimensions,
+  Image
 } from 'react-native';
 
 import { useDispatch } from 'react-redux';
@@ -24,22 +29,32 @@ import { authSignUpUser} from '../../redux/auth/authOperations';
     login: '',
     email: '',
     password: '',
+    avatarUri: '',
   };
 
-// const loadAplication = async () => {
-//     await Font.loadAsync({
-//        "Roboto-Bold": require("../assets/fonts/Roboto-Bold.ttf"),
-//     'Roboto-Reg': require('../assets/fonts/Roboto-Regular.ttf'),
-//   });
-// };
 
   export default function RegistrationScreen({navigation}) {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
     const [state, setstate] = useState(initialState);
-    // const [isReady, setIsReady] = useState(false);
     const [dimensions, setDimentions] = useState(Dimensions.get('window').width);
+    const [fileResponse, setFileResponse] = useState(null);
+    
 
     const dispatch = useDispatch();
+    const storage = getStorage();
+
+    const requestPermissions = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      console.log("status lib", status);
+    } catch (error) {
+      console.log("error", error);
+    }
+    };
+    
+    useEffect(() => {
+    requestPermissions();
+  }, []);
 
     useEffect(() => {
       const onChange = () => {
@@ -51,6 +66,25 @@ import { authSignUpUser} from '../../redux/auth/authOperations';
         Dimensions.removeEventListener('change', onChange);
       }
     }, []);
+
+    const pickImage = async () => {
+    try {
+      await MediaLibrary.requestPermissionsAsync();
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        setstate(prev => ({ ...prev, avatarUri: result.assets[0].uri }));
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
     
      const keyboardHide = () => {
     Keyboard.dismiss();
@@ -64,32 +98,44 @@ import { authSignUpUser} from '../../redux/auth/authOperations';
     setstate(initialState);
   };
     
-    // if (!isReady) {
-    //   return (<AppLoading startAsync={loadAplication} onFinish={() => setIsReady(true)}
-    //   onError={console.warn}/>);
-    // }
+    
   return (
     <TouchableWithoutFeedback onPress={keyboardHide}>
     <View style={styles.container}>
-      
+    
     <ImageBackground style={styles.image} source={require('../../images/photo.jpg')}>
       <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <View style={{
-           ...styles.form, paddingBottom: isShowKeyboard ? 16 : 130,
+           ...styles.form, paddingBottom: isShowKeyboard ? 16 : 120,
                          width: dimensions,
                  }}>
-             <View style={{backgroundColor: '#fff', width: dimensions, position: 'absolute', height: 470,top: -320, left: 0, borderRadius: 25}}>
+             <View style={{backgroundColor: '#fff', width: dimensions, position: 'absolute', height: 570,top: -420, left: 0, borderRadius: 25}}>
             <Text style={styles.header}>Регистрация</Text>
-        
+                <View style={styles.thumb}>
+                  <TouchableOpacity style={styles.avatarPlaceholder} onPress={pickImage} >
+                    <Image  source={{ uri: state.avatarUri }} style={styles.avatar}/>
+                  <AntDesign
+								name="pluscircleo"
+								size={25}
+								color="#FF6C00"
+								style={{
+									
+									// backgroundColor: "#fff",
+									borderRadius: 50,
+								}}
+                    />
+                    </TouchableOpacity>
+              {/* <MaterialIcons name="add-a-photo" size={24} color="grey"/> */}
+           </View>
           <View>
               <TextInput style={styles.input}
                 placeholder="Логин"
                   onFocus={() => setIsShowKeyboard(true)}
-                  onChangeText={(value) => setstate((prevState) => ({ ...prevState, name: value }))}
-                value={state.name}/>
+                  onChangeText={(value) => setstate((prevState) => ({ ...prevState, login: value }))}
+                value={state.login}/>
             </View>
-            
+        
             <View style={{marginTop: 16}}>
               <TextInput style={styles.input}
                 placeholder="Адрес электронной почты"
@@ -142,7 +188,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
      alignItems: 'center',
   },
-
   input: {
     borderWidth: 1,
     borderColor: '#E8E8E8',
@@ -157,7 +202,6 @@ const styles = StyleSheet.create({
 
   form: {
     marginHorizontal: 16,
-
   },
 
   btn: {
@@ -184,12 +228,35 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 16
     },
-  
+
   header: {
       textAlign: "center",
     fontSize: 30,
     marginBottom: 32,
-      marginTop:16,
+    marginTop: 92,
+      // marginTop:16,
     fontFamily: "Roboto-Bold",
+  },
+  thumb: {
+		width: 120,
+		height: 120,
+		backgroundColor: "#F6F6F6",
+		position: "absolute",
+		top: -60,
+		left: "50%",
+		transform: [{translateX: -60}],
+		borderRadius: 10,
+  },
+  avatar: {
+    width: 120,
+    height: 120,
+    borderRadius: 10,
+position: "absolute",
+  },
+  avatarPlaceholder: {
+    width: 120,
+    height: 120,
+    borderRadius: 10,
+    position: "relative",
   }
 });

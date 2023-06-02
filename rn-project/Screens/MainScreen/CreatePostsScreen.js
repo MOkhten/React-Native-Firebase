@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {useSelector} from 'react-redux'
 import { View, Text, StyleSheet, TouchableOpacity, Image, TextInput } from "react-native";
 import { Camera } from "expo-camera";
+import * as ImagePicker from 'expo-image-picker';
 import * as Location from "expo-location";
 import { db, storage } from "../../firebase/config";
 import { collection, doc, setDoc, addDoc } from "firebase/firestore"; 
@@ -18,7 +19,6 @@ const CreatePostsScreen = ({navigation}) => {
 
     useEffect(() => {
     (async () => {
-      
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== 'granted') {
         setErrorMsg('Permission to access location was denied');
@@ -30,18 +30,18 @@ const CreatePostsScreen = ({navigation}) => {
     })();
     }, []);
     
-//     const requestPermissions = async () => {
-//     try {
-//       const { status } = await ImagePicker.requestCameraPermissionsAsync();
-//       console.log("status lib", status);
-//     } catch (error) {
-//       console.log("error", error);
-//     }
-//   };
+    const requestPermissions = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      console.log("status lib", status);
+    } catch (error) {
+      console.log("error", error);
+    }
+  };
 
-//   useEffect(() => {
-//     requestPermissions();
-//   }, []);
+  useEffect(() => {
+    requestPermissions();
+  }, []);
    
     const takePhoto = async () => {
         const {uri} = await camera.takePictureAsync();
