@@ -11,14 +11,14 @@ import { authSlice } from './authReducer';
 
 const { updateUserProfile, authStateChange, authSignOut } = authSlice.actions;
 
-export const authSignUpUser = ({ email, password, login, userAvatar }) => async (dispatch, getState) => {
+export const authSignUpUser = ({ email, password, login, avatar }) => async (dispatch, getState) => {
     try {
         const responce = await createUserWithEmailAndPassword(authFirebase, email, password);
         const user = responce.user;
          await updateProfile(authFirebase.currentUser, {
              displayName: login,
-           userId: user.uid,
-             photoURL: userAvatar,
+             userId: user.uid,
+             photoURL: avatar,
          });
         const { displayName, uid, photoURL, email } = authFirebase.currentUser;
 
@@ -38,15 +38,25 @@ export const authSignUpUser = ({ email, password, login, userAvatar }) => async 
 
 export const authSignIn = ({ email, password }) => async (dispatch, getState) => {
     try {
-         const user = await signInWithEmailAndPassword(authFirebase, email, password)
-        // const user = await db
-      
-    } catch(error) {
-        console.log('error', error);
-        console.log('error.message', error.message);
+      const user = await signInWithEmailAndPassword(authFirebase, email, password);
+       console.log("user", user);
+      const { displayName, uid, photoURL } = user.user;
+      const userUpdateProfile = {
+        login: displayName,
+        userId: uid,
+        userEmail: email,
+      };
+
+      dispatch(updateUserProfile(userUpdateProfile));
+       
+
+    } catch (err) {
+        console.log('error message', err.message);
+        alert(err.message)
     }
-    
-};
+}
+
+
 
 export const authSignOutUser = () => async (dispatch, getState) => {
     try {
@@ -58,6 +68,7 @@ export const authSignOutUser = () => async (dispatch, getState) => {
 };
 
 export const authStateChangeUser = () => async (dispatch, getState) => { 
+  try{
     onAuthStateChanged(authFirebase, (user) => {
         if (user) {
         const userUpdateProfile = {
@@ -71,5 +82,9 @@ export const authStateChangeUser = () => async (dispatch, getState) => {
       dispatch(updateUserProfile(userUpdateProfile));
         }
     });
-}
+}catch (error) {
+    dispatch(fetchingError(error.message));
+    console.log("error", error.message);
+  }
+};
 

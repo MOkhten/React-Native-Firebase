@@ -23,13 +23,14 @@ import {
 import { useDispatch } from 'react-redux';
 
 import { authSignUpUser} from '../../redux/auth/authOperations';
+import { db } from "../../firebase/config";
 
 
   const initialState = {
     login: '',
     email: '',
     password: '',
-    avatarUri: '',
+    avatar: null,
   };
 
 
@@ -46,7 +47,6 @@ import { authSignUpUser} from '../../redux/auth/authOperations';
     const requestPermissions = async () => {
     try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
-      console.log("status lib", status);
     } catch (error) {
       console.log("error", error);
     }
@@ -79,10 +79,30 @@ import { authSignUpUser} from '../../redux/auth/authOperations';
       });
 
       if (!result.canceled) {
-        setstate(prev => ({ ...prev, avatarUri: result.assets[0].uri }));
+        setstate(prev => ({ ...prev, avatar: result.assets[0].uri }));
       }
     } catch (error) {
       console.log(error.message);
+    }
+  };
+
+    const uploadPhotoToServer = async () => {
+    const uniquePostId = Date.now().toString();
+
+    try {
+      const response = await fetch(state.avatar);
+
+      const file = await response.blob();
+
+      const imageRef = ref(db, `userAvatars/${uniquePostId}`);
+
+      await uploadBytes(imageRef, file);
+
+      const link = await getDownloadURL(imageRef);
+
+      return link;
+    } catch (error) {
+      console.log('uploadPhotoToServer', error.message);
     }
   };
     
@@ -91,10 +111,18 @@ import { authSignUpUser} from '../../redux/auth/authOperations';
     setIsShowKeyboard(false);
   };
   
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
-    dispatch(authSignUpUser(state));
+    let photo;
+    if (state.avatar) {
+      photo = await uploadPhotoToServer();
+    } else {
+      photo =
+        'https://firebasestorage.googleapis.com/v0/b/rn-imagelibrary.appspot.com/o/userAvatars%2F%D0%97%D0%BD%D1%96%D0%BC%D0%BE%D0%BA%20%D0%B5%D0%BA%D1%80%D0%B0%D0%BD%D0%B0%202023-06-03%20%D0%BE%2015.01.32.png?alt=media&token=271ad0cf-ff14-46b4-8125-85e9aaed16f5';
+    }
+
+    dispatch(authSignUpUser(...state, photo));
     setstate(initialState);
   };
     
@@ -160,7 +188,7 @@ import { authSignUpUser} from '../../redux/auth/authOperations';
                 
          
         
-            <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('Login')} style={{marginTop: 16}}>
+            <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate("LoginScreen")} style={{marginTop: 16}}>
               <Text style={styles.footer}>Уже есть аккаунт? Войти</Text>
                 </TouchableOpacity>
                 </View>

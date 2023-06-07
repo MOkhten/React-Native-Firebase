@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { StatusBar } from 'expo-status-bar';
-
-
 import {
   StyleSheet,
   Text,
   View,
+  Alert,
   ImageBackground,
   TextInput,
   TouchableOpacity,
@@ -29,7 +28,6 @@ export default function LoginScreen({ navigation }) {
     
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
     const [state, setstate] = useState(initialState);
-    // const [isReady, setIsReady] = useState(false);
     const [dimensions, setDimentions] = useState(Dimensions.get("window").width);
 
     useEffect(() => {
@@ -52,11 +50,19 @@ export default function LoginScreen({ navigation }) {
   };
   
   const handleSubmit = () => {
-    setIsShowKeyboard(false);
+    // setIsShowKeyboard(false);
     Keyboard.dismiss();
-    dispatch(authSignIn(state))
-    setstate(initialState);
+    dispatch(authSignIn(state));
+    setstate(initialState)
+      // .then(data => {
+      // if (data === undefined || !data.user) {
+      //   setIsShowLoader(false);
+      //   Alert.alert('Вхід не виконано!', `Помилка: ${data}`);
+      // }
+    // });
   };
+    
+  
     
  
   return (
@@ -77,24 +83,26 @@ export default function LoginScreen({ navigation }) {
             <View style={{marginTop: 16}}>
               <TextInput style={styles.input}
                 placeholder="Адрес электронной почты"
-                  onFocus={() => setIsShowKeyboard(true)}
+                    onFocus={() => setIsShowKeyboard(true)}
+                    value={state.email}
                   onChangeText={(value) => setstate((prevState) => ({ ...prevState, email: value }))}
-                value={state.email}/>
+                />
           </View>
         <View style={{marginTop: 16}}>
             <TextInput style={styles.input}
                 secureTextEntry={true}
                 placeholder="Пароль"
-                  onFocus={() => setIsShowKeyboard(true)}
+                    onFocus={() => setIsShowKeyboard(true)}
+                    value={state.password}
                   onChangeText={(value) => setstate((prevState) => ({ ...prevState, password: value }))}
-                value={state.password}/>
+                />
           </View>
           <TouchableOpacity activeOpacity={0.8} style={styles.btn} onPress={handleSubmit}>
               <Text style={styles.btnStyle}>Войти</Text>
               
           </TouchableOpacity>
           
-            <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('Register')} style={{marginTop: 16}}> 
+            <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('RegistrationScreen')} style={{marginTop: 16}}> 
             <Text style={styles.footer}>Нет аккаунта? Зарегистрироваться</Text>
              </TouchableOpacity>
               </View>
