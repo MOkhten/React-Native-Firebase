@@ -50,7 +50,7 @@ const CreatePostsScreen = ({navigation}) => {
 
     const sendPhoto = () => {
         uploadPostToServer();
-        navigation.navigate('HomeScreen', {photo})
+        navigation.navigate('HomeScreenPosts', {photo})
     };
 
     const uploadPostToServer = async () => {

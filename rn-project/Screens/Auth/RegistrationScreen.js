@@ -19,9 +19,7 @@ import {
   Dimensions,
   Image
 } from 'react-native';
-
 import { useDispatch } from 'react-redux';
-
 import { authSignUpUser} from '../../redux/auth/authOperations';
 import { db } from "../../firebase/config";
 
@@ -30,7 +28,7 @@ import { db } from "../../firebase/config";
     login: '',
     email: '',
     password: '',
-    avatar: null,
+    avatar: '',
   };
 
 
@@ -39,22 +37,34 @@ import { db } from "../../firebase/config";
     const [state, setstate] = useState(initialState);
     const [dimensions, setDimentions] = useState(Dimensions.get('window').width);
     const [fileResponse, setFileResponse] = useState(null);
+    const [hasPermission, setHasPermission] = useState(null);
+    const { login, email, password, avatar } = state;
     
 
     const dispatch = useDispatch();
     const storage = getStorage();
 
-    const requestPermissions = async () => {
-    try {
-      const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    } catch (error) {
-      console.log("error", error);
-    }
-    };
-    
     useEffect(() => {
-    requestPermissions();
+    (async () => {
+      try {
+        if (Platform.OS !== "web") {
+          const { status } =
+            await ImagePicker.requestMediaLibraryPermissionsAsync();
+          setHasPermission(status === "granted");
+          if (status !== "granted") {
+            console.log(
+              "Sorry, we need camera roll permissions to make this work!"
+            );
+          }
+       
+        }
+      } catch (error) {
+        // setError(error.message);
+        console.log(error.message)
+      }
+    })();
   }, []);
+
 
     useEffect(() => {
       const onChange = () => {
@@ -86,44 +96,56 @@ import { db } from "../../firebase/config";
     }
   };
 
-    const uploadPhotoToServer = async () => {
-    const uniquePostId = Date.now().toString();
-
+  
+    
+    const uploadAvatarToServer = async () => {
+    
     try {
       const response = await fetch(state.avatar);
-
       const file = await response.blob();
 
-      const imageRef = ref(db, `userAvatars/${uniquePostId}`);
+      const avatarId = Date.now().toString();
 
-      await uploadBytes(imageRef, file);
+      const storageRef = ref(storage, `avatars/${avatarId}`);
+      await uploadBytes(storageRef, file);
 
-      const link = await getDownloadURL(imageRef);
+      const avatarRef = await getDownloadURL(storageRef);
 
-      return link;
+      return avatarRef;
     } catch (error) {
-      console.log('uploadPhotoToServer', error.message);
+      console.log("Upload avatar to server error", error.message);
+      
     }
   };
-    
      const keyboardHide = () => {
     Keyboard.dismiss();
     setIsShowKeyboard(false);
   };
   
-  const handleSubmit = async() => {
-    setIsShowKeyboard(false);
-    Keyboard.dismiss();
-    let photo;
-    if (state.avatar) {
-      photo = await uploadPhotoToServer();
-    } else {
-      photo =
-        'https://firebasestorage.googleapis.com/v0/b/rn-imagelibrary.appspot.com/o/userAvatars%2F%D0%97%D0%BD%D1%96%D0%BC%D0%BE%D0%BA%20%D0%B5%D0%BA%D1%80%D0%B0%D0%BD%D0%B0%202023-06-03%20%D0%BE%2015.01.32.png?alt=media&token=271ad0cf-ff14-46b4-8125-85e9aaed16f5';
-    }
+    const handleSubmit = async () => {
+    try {
+      const avatarRef = await uploadAvatarToServer();
+      setIsShowKeyboard(false);
+      Keyboard.dismiss();
 
-    dispatch(authSignUpUser(...state, photo));
-    setstate(initialState);
+      dispatch(authSignUpUser({ ...state, avatar: avatarRef }));
+      setstate(initialState);
+    } catch (error) {
+      console.log("Upload avatar to server error", error.message);
+      
+    }
+    // setIsShowKeyboard(false);
+    // Keyboard.dismiss();
+    // let photo;
+    // if (state.avatar) {
+    //   photo = await uploadPhotoToServer();
+    // } else {
+    //   photo =
+    //     'https://firebasestorage.googleapis.com/v0/b/rn-imagelibrary.appspot.com/o/userAvatars%2F%D0%97%D0%BD%D1%96%D0%BC%D0%BE%D0%BA%20%D0%B5%D0%BA%D1%80%D0%B0%D0%BD%D0%B0%202023-06-03%20%D0%BE%2015.01.32.png?alt=media&token=271ad0cf-ff14-46b4-8125-85e9aaed16f5';
+    // }
+
+    // dispatch(authSignUpUser(...state, photo));
+    // setstate(initialState);
   };
     
     
@@ -141,8 +163,15 @@ import { db } from "../../firebase/config";
              <View style={{backgroundColor: '#fff', width: dimensions, position: 'absolute', height: 570,top: -420, left: 0, borderRadius: 25}}>
             <Text style={styles.header}>Регистрация</Text>
                 <View style={styles.thumb}>
+                  {avatar && (
+                      <Image
+                        src={avatar}
+                        alt="Your avatar"
+                       style={styles.avatar}
+                      />
+                    )}
                   <TouchableOpacity style={styles.avatarPlaceholder} onPress={pickImage} >
-                    <Image  source={{ uri: state.avatarUri }} style={styles.avatar}/>
+                    {/* <Image  source={{ uri: state.avatarUri }} style={styles.avatar}/> */}
                   <AntDesign
 								name="pluscircleo"
 								size={25}

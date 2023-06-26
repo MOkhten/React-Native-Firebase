@@ -3,51 +3,96 @@ import { authFirebase } from '../../firebase/config';
 import {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
-    updateProfile,
+  updateProfile,
     onAuthStateChanged,
     signOut
 } from 'firebase/auth';
 import { authSlice } from './authReducer';
 
-const { updateUserProfile, authStateChange, authSignOut } = authSlice.actions;
+const { updateUserProfile, authStateChange, authSignOut , fetchingInProgress} = authSlice.actions;
 
 export const authSignUpUser = ({ email, password, login, avatar }) => async (dispatch, getState) => {
-    try {
-        const responce = await createUserWithEmailAndPassword(authFirebase, email, password);
-        const user = responce.user;
-         await updateProfile(authFirebase.currentUser, {
-             displayName: login,
-             userId: user.uid,
-             photoURL: avatar,
-         });
-        const { displayName, uid, photoURL, email } = authFirebase.currentUser;
+  try {
+       dispatch(fetchingInProgress());
+      const response = await createUserWithEmailAndPassword(
+        authFirebase,
+        email,
+        password
+      );
+
+    const user = response.user;
+     await updateProfile(authFirebase.currentUser, {
+        displayName: login,
+        userId: user.uid,
+        photoURL: avatar,
+      });
+
+      const { displayName, uid, photoURL } = await authFirebase.currentUser;
 
       const userUpdateProfile = {
-        login: displayName,
+        userName: displayName,
         userId: uid,
         userAvatar: photoURL,
         userEmail: email,
       };
 
-      dispatch(updateUserProfile(userUpdateProfile))
-    } catch(error) {
+      dispatch(updateUserProfile(userUpdateProfile));
+  }
+ 
+
+      //   const responce = await createUserWithEmailAndPassword(authFirebase, email, password);
+      //   const user = responce.user;
+      //    await updateProfile(authFirebase.currentUser, {
+      //        displayName: login,
+      //        userId: user.uid,
+      //        photoURL: avatar,
+      //    });
+      //   const { displayName, uid, photoURL, email } = authFirebase.currentUser;
+
+      // const userUpdateProfile = {
+      //   login: displayName,
+      //   userId: uid,
+      //   userAvatar: photoURL,
+      //   userEmail: email,
+      // };
+
+      // dispatch(updateUserProfile(userUpdateProfile))
+     catch(error) {
         console.log('error', error);
         console.log('error.message', error.message);
     }
 };
 
 export const authSignIn = ({ email, password }) => async (dispatch, getState) => {
-    try {
-      const user = await signInWithEmailAndPassword(authFirebase, email, password);
-       console.log("user", user);
+  try {
+       dispatch(fetchingInProgress());
+      const user = await signInWithEmailAndPassword(
+        authFirebase,
+        email,
+        password
+      );
+
       const { displayName, uid, photoURL } = user.user;
+
       const userUpdateProfile = {
-        login: displayName,
+        userName: displayName,
         userId: uid,
+        userAvatar: photoURL,
         userEmail: email,
       };
 
       dispatch(updateUserProfile(userUpdateProfile));
+      // const user = await signInWithEmailAndPassword(authFirebase, email, password);
+      //  console.log("user", user);
+      // const { displayName, uid, photoURL } = user.user;
+      // const userUpdateProfile = {
+      //   userName: displayName,
+      //   userId: uid,
+      //   userAvatar: photoURL,
+      //   userEmail: email,
+      // };
+
+      // dispatch(updateUserProfile(userUpdateProfile));
        
 
     } catch (err) {
@@ -72,10 +117,10 @@ export const authStateChangeUser = () => async (dispatch, getState) => {
     onAuthStateChanged(authFirebase, (user) => {
         if (user) {
         const userUpdateProfile = {
-        login: user.displayName,
-        userId: user.uid,
-        userAvatar: user.photoURL,
-        userEmail: user.email,
+         userName: user.displayName,
+          userId: user.uid,
+          userAvatar: user.photoURL,
+          userEmail: user.email,
       };
 
       dispatch(authStateChange({ stateChange: true }));

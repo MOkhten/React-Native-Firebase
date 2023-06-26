@@ -1,6 +1,9 @@
 import React, {useEffect, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { db } from "../../firebase/config";
+import * as MediaLibrary from "expo-media-library";
+import { Camera } from "expo-camera";
+import {getDownloadURL, getStorage, ref, uploadBytes} from "firebase/storage";
 import {
   View,
   Image,
@@ -13,31 +16,126 @@ import {
 import { collection, where, getDocs, query } from "firebase/firestore";
 import { authSignOutUser } from "../../redux/auth/authOperations";
 
-const ProfileScreen = () => {
+const ProfileScreen = ({navigation, route}) => {
     const { userId } = useSelector((state) => state.auth);
-    const [userPosts, setUserPosts] = useState([]);
+  const [userPosts, setUserPosts] = useState([]);
+   const [deletedPost, setDeletedPost] = useState('');
+    const [makePhoto, setMakePhoto] = useState(null);
+    const [cameraRef, setCameraRef] = useState(null);
+    const [avatarUrl, setAvatarUrl] = useState(null);
+    const [hasPermission, setHasPermission] = useState(null);
+    const [type, setType] = useState(Camera.Constants.Type.front);
 
-    const dispatch = useDispatch();
+  const dispatch = useDispatch();
+  
+  const storage = getStorage();
+
+    // useEffect(() => {
+    // getUserPosts();
+    // }, []);
+  
+  const userPostsRef = query(collection(db, "posts"), where("userId", "==", userId));
 
     useEffect(() => {
-    getUserPosts();
-  }, []);
+        (async () => {
+            const {status} = await Camera.requestCameraPermissionsAsync();
+            await MediaLibrary.requestPermissionsAsync();
+            setHasPermission(status === "granted");
+        })();
+    }, []);
+
+  useEffect(() => {
+
+        getAllPosts();
+
+    }, [deletedPost])
+
+    const toggleMakePhoto = () => {
+        if (!makePhoto) {
+            setMakePhoto('camera')
+        }
+        if (makePhoto === 'camera' || makePhoto === 'user') {
+            setMakePhoto(null)
+        }
+    }
+
+    const getAllPosts = async () => {
+        const querySnapshot = await getDocs(userPostsRef);
+        const allPosts = querySnapshot.docs.map((post) => ({
+            ...post.data(), id: post.id
+        }));
+
+        const sortedPosts = allPosts.sort(
+            (firstContact, secondContact) =>
+                secondContact.id - firstContact.id);
+        setPosts(sortedPosts);
+    }
+
+
+    const deletePost = async (postId) => {
+        await deleteDoc(doc(db, "posts", postId));
+        setDeletedPost(postId);
+    }
+
+
+    const uploadAvatar = async () => {
+
+        if (avatarUrl) {
+            const response = await fetch(`${avatarUrl}`)
+            const file = await response.blob();
+            const uniquePostId = Date.now().toString()
+
+            const imageRef = await ref(storage, `avatars/${uniquePostId}`)
+            await uploadBytes(imageRef, file);
+            const newAvatar = await getDownloadURL(imageRef);
+
+            dispatch(profileUpdateAvatar({avatar: newAvatar}));
+
+            setAvatarUrl(null);
+            setMakePhoto(null);
+        }
+    }
+
+    const takePicture = async () => {
+        if (cameraRef) {
+            const {uri} = await cameraRef.takePictureAsync();
+            setAvatarUrl(uri);
+            setMakePhoto('user')
+            await MediaLibrary.createAssetAsync(uri);
+        }
+    }
+
+    const goToMap = (location) => {
+        navigation.navigate("Map", {
+            location: location,
+        })
+    }
+
+    const goToComments = (item) => (
+        navigation.navigate("Comments", {
+            id: item.id,
+            header: item.headers.name,
+            photo: item.photo,
+            place: item.headers.place,
+            location: item.location,
+        })
+    )
     
-    const getUserPosts = async() => {
-         try {
-      const querySnapshot = await getDocs(
-        query(collection(db, "posts"), where("userId", "==", userId))
-      );
-      if (querySnapshot.empty) {
-        console.log("No user posts found");
-        return;
-      }
-      const posts = querySnapshot.docs.map((doc) => doc.data());
-      setUserPosts(posts);
-    } catch (error) {
-      console.error("Error fetching user posts: ", error);
-    }
-    }
+    // const getUserPosts = async() => {
+    //      try {
+    //   const querySnapshot = await getDocs(
+    //     query(collection(db, "posts"), where("userId", "==", userId))
+    //   );
+    //   if (querySnapshot.empty) {
+    //     console.log("No user posts found");
+    //     return;
+    //   }
+    //   const posts = querySnapshot.docs.map((doc) => doc.data());
+    //   setUserPosts(posts);
+    // } catch (error) {
+    //   console.error("Error fetching user posts: ", error);
+    // }
+    // }
     
 
     const signOut = () => {
@@ -49,7 +147,48 @@ const ProfileScreen = () => {
         source={require("../../images/photo.jpg")}
         resizeMode="cover"
         style={styles.image}
-      >
+        >
+           <View style={styles.avatarPlace}>
+                            {!makePhoto &&
+                                <Image style={styles.avatarImage}
+                                       source={{uri: avatar}}/>
+                            }
+                            {makePhoto === 'camera' &&
+                                <Camera
+                                    style={styles.avatarImage}
+                                    type={type}
+                                    ref={(ref) => {
+                                        setCameraRef(ref);
+                                    }}
+                                >
+
+                                    <View style={styles.makePhotoButton}>
+                                        {makePhoto === 'camera' &&
+                                            <Pressable
+                                                onPress={takePicture}
+                                                title="TakePicture"
+                                            >
+                                                <MaterialIcons name="add-a-photo" size={24} color="grey"/>
+                                            </Pressable>
+                                        }
+                                    </View>
+
+                                </Camera>
+                            }
+                            {makePhoto === 'user' &&
+                                <View>
+                                    <Image style={styles.avatarImage} source={{uri: avatarUrl}}/>
+                                    <Pressable
+                                        style={styles.makePhotoButton}
+                                        onPress={uploadAvatar}
+                                        title="UploadPicture"
+                                    >
+                                        <MaterialCommunityIcons name="cloud-upload" size={24} color="grey"/>
+                                    </Pressable>
+                                </View>
+                            }
+                        </View>
+
         <TouchableOpacity style={styles.btnPress} onPress={signOut}>
           <Text style={{ color: `#fff` }}>Log out</Text>
         </TouchableOpacity>

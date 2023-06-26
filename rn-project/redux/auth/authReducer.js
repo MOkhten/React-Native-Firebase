@@ -13,12 +13,20 @@ export const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
+    fetchingInProgress: (state) => {
+      return { ...state };
+    },
+  
     updateUserProfile: (state, { payload }) => ({
       ...state,
       userId: payload.userId,
-      login: payload.login,
-      //  userName: payload.userName,
+        userName: payload.userName,
         userAvatar: payload.userAvatar,
+        userEmail: payload.userEmail,
+      // userId: payload.userId,
+      // login: payload.login,
+      //  userName: payload.userName,
+        // userAvatar: payload.userAvatar,
      
     }),
     authStateChange: (state, { payload }) => ({
